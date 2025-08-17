@@ -1,18 +1,19 @@
 import React, { useState } from 'react'
 import { useStore } from '../utils/store'
-import type { ModelConfig } from '../utils/types'
+import type { ModelConfig, MCPConfig } from '../utils/types'
 import { Dropdown } from './Dropdown'
 import { invoke } from '@tauri-apps/api/core'
 import { Command } from '@tauri-apps/plugin-shell'
 import { t, getCurrentLocale } from '../utils/i18n'
 
-type Tab = 'models' | 'chat'
+type Tab = 'models' | 'chat' | 'mcp'
 
 export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
   const { config, setConfig, persist } = useStore()
   const [tab, setTab] = useState<Tab>('models')
   const [local, setLocal] = useState(config)
   const [modelList, setModelList] = useState<ModelConfig[]>(config.models || [])
+  const [mcpList, setMcpList] = useState<MCPConfig[]>(config.mcpServers || [])
   const [currentLang, setCurrentLang] = useState(getCurrentLocale())
   
   // 确保local状态与最新的config同步
@@ -20,6 +21,7 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
     console.log('设置页面打开，当前配置:', config);
     setLocal(config);
     setModelList(config.models || []);
+    setMcpList(config.mcpServers || []);
   }, [config]);
 
   // 监听语言变化，强制重新渲染
@@ -62,8 +64,8 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
 
   const saveSettings = async () => {
     try {
-      console.log('保存前的配置:', { ...local, models: modelList })
-      setConfig({ ...local, models: modelList })
+      console.log('保存前的配置:', { ...local, models: modelList, mcpServers: mcpList })
+      setConfig({ ...local, models: modelList, mcpServers: mcpList })
       console.log('调用persist前...')
       await persist()
       console.log('persist完成，准备重启...')
@@ -97,13 +99,19 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
         >
           {t('settings.chat')}
         </button>
+        <button 
+          className={`w-full h-10 rounded-ollama text-left px-3 ${tab==='mcp'?'bg-gray-900 text-white':'bg-white text-gray-800 border border-gray-200'}`} 
+          onClick={() => setTab('mcp')}
+        >
+          {t('settings.mcp')}
+        </button>
         <div className="mt-auto text-[11px] text-gray-400 px-1">Yao Desktop</div>
       </div>
       
       <div className="flex-1 h-full flex flex-col">
         <div className="h-12 border-b border-gray-200 flex items-center justify-between px-4">
           <div className="text-sm text-gray-700">
-            {tab === 'models' ? t('settings.models') : t('settings.chat')}
+            {tab === 'models' ? t('settings.models') : tab === 'chat' ? t('settings.chat') : t('settings.mcp')}
           </div>
         </div>
         
@@ -262,6 +270,134 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
                     onChange={(e) => setLocal({ ...local, temperature: Number(e.target.value) || 0.6 })} 
                   />
                   <div className="text-xs text-gray-500">{t('settings.temperature_desc')}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {tab === 'mcp' && (
+            <div className="space-y-6 max-w-[760px]">
+              <div className="text-sm text-gray-600">{t('settings.mcp_servers')}</div>
+              <div className="space-y-3">
+                {mcpList.map((mcp, idx) => (
+                  <div key={idx} className="border border-gray-200 rounded-ollama p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="checkbox" 
+                          checked={mcp.enabled} 
+                          onChange={(e) => {
+                            const next = [...mcpList]
+                            next[idx] = {...mcp, enabled: e.target.checked}
+                            setMcpList(next)
+                          }} 
+                        />
+                        <span className="text-sm font-medium">{t('settings.mcp_enabled')}</span>
+                      </div>
+                      <button 
+                        className="btn h-9 px-3" 
+                        onClick={() => {
+                          const next = [...mcpList]
+                          next.splice(idx, 1)
+                          setMcpList(next)
+                        }}
+                      >
+                        {t('settings.delete')}
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500">{t('settings.mcp_name')}</div>
+                      <input 
+                        className="input h-10 w-full" 
+                        value={mcp.name} 
+                        onChange={(e) => {
+                          const next = [...mcpList]
+                          next[idx] = {...mcp, name: e.target.value}
+                          setMcpList(next)
+                        }} 
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500">{t('settings.mcp_json_config')}</div>
+                      <textarea 
+                        className="input w-full min-h-[120px] font-mono text-sm" 
+                        placeholder={t('settings.mcp_json_placeholder')} 
+                        value={JSON.stringify({
+                          command: mcp.command,
+                          args: mcp.args || [],
+                          env: mcp.env || {}
+                        }, null, 2)} 
+                        onChange={(e) => {
+                          try {
+                            const config = JSON.parse(e.target.value)
+                            const next = [...mcpList]
+                            next[idx] = {
+                              ...mcp,
+                              command: config.command || '',
+                              args: config.args || [],
+                              env: config.env || {}
+                            }
+                            setMcpList(next)
+                          } catch (error) {
+                            // 忽略JSON解析错误，让用户继续编辑
+                          }
+                        }} 
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500">{t('settings.mcp_description')}</div>
+                      <input 
+                        className="input h-10 w-full" 
+                        placeholder={t('settings.mcp_description_placeholder')} 
+                        value={mcp.description || ''} 
+                        onChange={(e) => {
+                          const next = [...mcpList]
+                          next[idx] = {...mcp, description: e.target.value}
+                          setMcpList(next)
+                        }} 
+                      />
+                    </div>
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <button 
+                    className="btn h-10 px-3" 
+                    onClick={() => setMcpList([
+                      ...mcpList, 
+                      { 
+                        id: `mcp-${Date.now()}`, 
+                        name: 'New MCP Server', 
+                        command: '', 
+                        args: [],
+                        env: {},
+                        enabled: true 
+                      }
+                    ])}
+                  >
+                    {t('settings.add_mcp')}
+                  </button>
+                  <button 
+                    className="btn h-10 px-3" 
+                    onClick={() => setMcpList([
+                      ...mcpList, 
+                      { 
+                        id: 'excel-mcp',
+                        name: 'Excel MCP Server', 
+                        command: 'cmd',
+                        args: ['/c', 'npx', '--yes', '@negokaz/excel-mcp-server'],
+                        env: {
+                          'EXCEL_MCP_PAGING_CELLS_LIMIT': '4000'
+                        },
+                        enabled: true,
+                        description: 'MCP server for Excel file operations'
+                      }
+                    ])}
+                  >
+                    {t('settings.add_excel_mcp')}
+                  </button>
                 </div>
               </div>
             </div>

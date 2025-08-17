@@ -95,4 +95,19 @@ export const IconLanguage: React.FC<{ className?: string }> = ({ className = "w-
   </svg>
 )
 
+export const IconMCP: React.FC<{ className?: string }> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className}>
+    {/* M字母 */}
+    <path d="M4 20V8l4 8 4-8v12" />
+    <path d="M16 8v12" />
+    <path d="M20 8v12" />
+    <path d="M16 8l2-4 2 4" />
+    {/* 连接线表示协议 */}
+    <circle cx="6" cy="4" r="1" fill="currentColor" />
+    <circle cx="12" cy="4" r="1" fill="currentColor" />
+    <circle cx="18" cy="4" r="1" fill="currentColor" />
+    <path d="M6 4h12" strokeWidth="1" opacity="0.5" />
+  </svg>
+)
+
 

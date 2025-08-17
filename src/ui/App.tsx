@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { SettingsDrawer } from './SettingsDrawer'
 import { ChatBubble } from './ChatBubble'
 import { useStore } from '../utils/store'
-import { fetchModels, streamChat } from '../utils/proxy'
+import { fetchModels, streamChat, streamChatWithMCP } from '../utils/proxy'
 import { t, setLocale, getCurrentLocale } from '../utils/i18n'
-import { IconSend, IconGlobe, IconCloud, IconList, IconEdit, IconBrain, IconLanguage } from './icons'
+import { IconSend, IconGlobe, IconCloud, IconList, IconEdit, IconBrain, IconLanguage, IconMCP } from './icons'
 import { Dropdown } from './Dropdown'
 import { createConversationId, loadConversations, saveConversations, type Conversation } from '../utils/conversations'
 import { log } from '../utils/log'
@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [thinkingMs, setThinkingMs] = useState<number>(0)
   const [assistantOutputStarted, setAssistantOutputStarted] = useState<boolean>(false)
   const [thinkEnabled, setThinkEnabled] = useState<boolean>(true)
+  const [mcpEnabled, setMcpEnabled] = useState<boolean>(false)
   const [pullingModel, setPullingModel] = useState<string>('')
   const [currentLanguage, setCurrentLanguage] = useState(getCurrentLocale())
 
@@ -175,11 +176,12 @@ export const App: React.FC = () => {
         apiKeyLength: modelSpecificConfig.apiKey?.length || 0
       })
       
-      for await (const chunk of streamChat({
+      for await (const chunk of streamChatWithMCP({
         config: modelSpecificConfig,
         messages: history,
         model: currentModel,
         think: thinkEnabled,
+        mcpEnabled: mcpEnabled,
       })) {
         // typewriter effect for each chunk
         for (let i = 0; i < chunk.length; i++) {
@@ -231,6 +233,13 @@ export const App: React.FC = () => {
         onClick={()=> setThinkEnabled(v=>!v)}
       >
         <IconBrain className="w-5 h-5" />
+      </button>
+      <button
+        className={`w-10 h-10 rounded-full flex items-center justify-center border ${mcpEnabled ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200'}`}
+        title="MCP Agentic"
+        onClick={()=> setMcpEnabled(v=>!v)}
+      >
+        <IconMCP className="w-5 h-5" />
       </button>
       {/* 隐藏互联网与 Turbo 按钮 */}
       <Dropdown

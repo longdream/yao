@@ -1,7 +1,7 @@
 import { log } from './log'
 import { create } from 'zustand'
 import { invoke } from '@tauri-apps/api/core'
-import type { ModelConfig, Provider } from './types'
+import type { ModelConfig, Provider, MCPConfig } from './types'
 
 export type AppConfig = {
   provider: Provider
@@ -17,6 +17,8 @@ export type AppConfig = {
   temperature?: number
   // ui options
   language?: 'zh-CN' | 'en'
+  // mcp options
+  mcpServers?: MCPConfig[]
 }
 
 type StoreState = {
@@ -38,6 +40,7 @@ export const useStore = create<StoreState>((set, get) => ({
     maxContextMessages: 20,
     temperature: 0.6,
     language: 'zh-CN',
+    mcpServers: [],
   },
   setConfig(partial) {
     const merged = { ...get().config, ...partial }
@@ -96,6 +99,11 @@ export async function bootstrapConfig() {
         maxContextMessages: value.maxContextMessages ?? 20,
         temperature: value.temperature ?? 0.6,
         language: value.language ?? 'zh-CN',
+        mcpServers: (value.mcpServers || []).map(mcp => ({
+          ...mcp,
+          args: mcp.args || [],
+          env: mcp.env || {}
+        })),
       }
       useStore.setState({ config: hydrated })
       log('INFO', 'settings loaded', hydrated)

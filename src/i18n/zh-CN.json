@@ -34,5 +34,19 @@
   "chat.settings": "设置",
   "chat.menu": "菜单",
   "chat.send_message": "发送消息",
-  "chat.language": "语言"
+  "chat.language": "语言",
+  "settings.mcp": "MCP Agentic",
+  "settings.mcp_servers": "MCP 服务器",
+  "settings.mcp_name": "名称",
+  "settings.mcp_command": "命令",
+  "settings.mcp_args": "参数",
+  "settings.mcp_description": "描述",
+  "settings.mcp_enabled": "启用",
+  "settings.add_mcp": "+ 添加 MCP 服务器",
+  "settings.add_excel_mcp": "+ 添加 Excel MCP",
+  "settings.mcp_json_config": "JSON 配置",
+  "settings.mcp_json_placeholder": "{\n  \"command\": \"cmd\",\n  \"args\": [\"/c\", \"npx\", \"--yes\", \"@negokaz/excel-mcp-server\"],\n  \"env\": {\n    \"EXCEL_MCP_PAGING_CELLS_LIMIT\": \"4000\"\n  }\n}",
+  "settings.mcp_command_placeholder": "例如: node server.js",
+  "settings.mcp_args_placeholder": "例如: --port 3000",
+  "settings.mcp_description_placeholder": "MCP 服务器描述"
 }

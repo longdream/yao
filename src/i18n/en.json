@@ -34,5 +34,19 @@
   "chat.settings": "Settings",
   "chat.menu": "Menu",
   "chat.send_message": "Send a message",
-  "chat.language": "Language"
+  "chat.language": "Language",
+  "settings.mcp": "MCP Agentic",
+  "settings.mcp_servers": "MCP Servers",
+  "settings.mcp_name": "Name",
+  "settings.mcp_command": "Command",
+  "settings.mcp_args": "Arguments",
+  "settings.mcp_description": "Description",
+  "settings.mcp_enabled": "Enabled",
+  "settings.add_mcp": "+ Add MCP Server",
+  "settings.add_excel_mcp": "+ Add Excel MCP",
+  "settings.mcp_json_config": "JSON Configuration",
+  "settings.mcp_json_placeholder": "{\n  \"command\": \"cmd\",\n  \"args\": [\"/c\", \"npx\", \"--yes\", \"@negokaz/excel-mcp-server\"],\n  \"env\": {\n    \"EXCEL_MCP_PAGING_CELLS_LIMIT\": \"4000\"\n  }\n}",
+  "settings.mcp_command_placeholder": "e.g., node server.js",
+  "settings.mcp_args_placeholder": "e.g., --port 3000",
+  "settings.mcp_description_placeholder": "MCP server description"
 }
