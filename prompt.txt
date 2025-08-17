@@ -1,0 +1,38 @@
+你是一位拥有 10 年经验的高级全栈工程师，精通 Rust、Tauri、TypeScript、React 或 Vue3、Tailwind CSS。现在请按下列要求，从零开始独立开发并交付一个桌面应用项目，项目名暂定为「OllamaChat」。
+视觉风格
+• 必须与 ollama.com 官网完全一致：黑白灰极简配色、无多余装饰、圆角 4–6 px、字体优先使用系统默认无衬线（SF Pro / Segoe UI / Roboto）。
+• 全部 UI 均用 Tailwind CSS 实现，颜色仅使用 gray-50 到 gray-900 以及 black/white，禁止出现其他彩色。
+• 交互需保持“极简却好用”：按钮 hover 时 8% 黑色遮罩、focus 时 2 px 内阴影；所有过渡 150 ms ease-in-out。
+技术栈
+• 前端：Tauri + Vite + React（或 Vue3，可二选一，默认 React）。
+• 后端：Tauri 命令作为本地 Rust 侧，仅做代理转发，不额外实现 LLM 逻辑。
+• 打包：生成的 .exe / .dmg / .AppImage 需一键产出，体积 ≤ 50 MB。
+功能需求
+仅两大窗口：
+A. 对话窗口（主窗口）
+– 左侧 40 % 宽度的极简会话列表（可折叠），右侧 60 % 聊天区域。
+– 聊天区域顶部固定模型名称与“设置”按钮；底部固定输入框（单行，高度 48 px，圆角 24 px，Send 图标按钮在右侧）。
+– 消息气泡：用户消息右对齐白底灰字，助手消息左对齐灰底白字，头像使用首字母圆形灰底白字。
+– 支持 Markdown 渲染，但仅渲染粗体、行内代码、代码块，颜色保持灰阶。
+– 支持流式打字机效果，打字光标为 2 px 垂直灰条。
+B. 设置窗口（模态或独立，二选一）
+– 提供两个 Provider 切换：Ollama、OpenAI。
+– 当选择 Ollama 时：仅输入 base_url（默认 http://localhost:11434），下拉框选模型（/api/tags 自动拉取）。
+– 当选择 OpenAI 时：输入 api_key、base_url（默认 https://api.openai.com/v1），下拉框选模型（/v1/models 自动拉取）。
+– 底部“保存并重启”按钮，保存后自动重载对话窗口。
+– 所有配置持久化到 Tauri 本地 JSON 文件，路径跨平台兼容。
+启动与打包脚本
+• 项目根目录需提供：
+– start.bat（Windows）/ start.sh（Unix）：一键 dev 热重载。
+– build.bat（Windows）/ build.sh（Unix）：一键安装依赖、编译前端、编译 Rust、产出安装包到 dist/ 目录。
+• 脚本内自动检测系统并调用 tauri-cli，无需用户手动安装额外全局依赖。
+交付物
+• 完整源码仓库（包含 .gitignore、README 中英双语）。
+• README 内含：项目介绍、环境要求、dev 启动、build 打包、常见故障排查。
+• 打包脚本生成的可执行安装包（Windows exe / macOS dmg / Linux AppImage）。
+代码质量
+• Rust 侧使用 clippy 0 warnings。
+• 前端侧使用 eslint + prettier 0 errors。
+• 所有用户可见文案使用 i18n key，默认英文，中文语言包可选。
+• 开源协议 MIT。
+请严格按照以上要求一次性生成完整项目并交付，无需额外解释。

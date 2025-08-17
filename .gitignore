@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+/.vite
+/.eslintcache
+coverage/
+
+# Tauri / Rust
+/src-tauri/target/
+/src-tauri/.cargo/
+/.cargo/
+**/*.pdb
+**/*.dSYM
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Env
+.env
+.env.*
+

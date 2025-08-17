@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+* { outline-color: rgba(0,0,0,0.5); }
+html, body, #root { height: 100%; overflow: hidden; }
+
+.dot { display:inline-block; width:4px; height:4px; background: rgba(156,163,175,1); border-radius:9999px; opacity:0.4; animation: dotBlink 1s infinite; }
+.dot.delay-100 { animation-delay: .1s; }
+.dot.delay-200 { animation-delay: .2s; }
+@keyframes dotBlink { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+
+.btn {
+  @apply rounded-ollama bg-gray-900 text-white transition duration-ollama ease-ollama;
+}
+.btn:hover { filter: brightness(0.92); }
+.btn:focus { box-shadow: 0 0 0 2px rgba(0,0,0,0.1) inset; }
+
+.input {
+  @apply h-12 rounded-ollama bg-gray-100 text-gray-900 px-4 placeholder-gray-400 outline-none transition duration-ollama ease-ollama;
+}
+.input:focus { box-shadow: 0 0 0 2px rgba(0,0,0,0.1) inset; }
+
+.input-pill {
+  @apply rounded-[24px];
+}
+
+.scrollbar::-webkit-scrollbar { width: 10px; }
+.scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 8px; }
+
+
