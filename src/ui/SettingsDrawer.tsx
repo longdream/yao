@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useStore } from '../utils/store'
-import type { ModelConfig, MCPConfig } from '../utils/types'
+import type { ModelConfig, MCPConfig, MCPServerInfo } from '../utils/types'
 import { Dropdown } from './Dropdown'
 import { invoke } from '@tauri-apps/api/core'
 import { Command } from '@tauri-apps/plugin-shell'
@@ -73,6 +73,29 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
     } catch (error) {
       console.error('保存失败:', error)
       alert('保存配置失败: ' + error)
+    }
+  }
+
+  const refreshMCPTools = async (mcpConfig: MCPConfig) => {
+    try {
+      const { getMCPTools } = await import('../utils/proxy')
+      const serverInfo = await getMCPTools(mcpConfig)
+      
+      // 更新配置中的MCP服务器信息
+      const updatedConfig = {
+        ...config,
+        mcpServerInfos: {
+          ...config.mcpServerInfos,
+          [mcpConfig.id]: serverInfo
+        }
+      }
+      setConfig(updatedConfig)
+      
+      console.log('MCP工具刷新成功:', serverInfo)
+      alert(`MCP服务器 "${mcpConfig.name}" 工具刷新成功！找到 ${serverInfo.tools?.length || 0} 个工具。`)
+    } catch (error) {
+      console.error('刷新MCP工具失败:', error)
+      alert('刷新MCP工具失败: ' + error)
     }
   }
 
@@ -294,16 +317,25 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
                         />
                         <span className="text-sm font-medium">{t('settings.mcp_enabled')}</span>
                       </div>
-                      <button 
-                        className="btn h-9 px-3" 
-                        onClick={() => {
-                          const next = [...mcpList]
-                          next.splice(idx, 1)
-                          setMcpList(next)
-                        }}
-                      >
-                        {t('settings.delete')}
-                      </button>
+                      <div className="flex gap-2">
+                        <button 
+                          className="btn h-9 px-3 text-sm" 
+                          onClick={() => refreshMCPTools(mcp)}
+                          disabled={!mcp.enabled}
+                        >
+                          {t('settings.refresh_tools')}
+                        </button>
+                        <button 
+                          className="btn h-9 px-3" 
+                          onClick={() => {
+                            const next = [...mcpList]
+                            next.splice(idx, 1)
+                            setMcpList(next)
+                          }}
+                        >
+                          {t('settings.delete')}
+                        </button>
+                      </div>
                     </div>
                     
                     <div className="space-y-1">
@@ -360,6 +392,23 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
                         }} 
                       />
                     </div>
+                    
+                    {/* 显示工具列表 */}
+                    {config.mcpServerInfos?.[mcp.id]?.tools && config.mcpServerInfos[mcp.id].tools!.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="text-xs text-gray-500">{t('settings.available_tools')} ({config.mcpServerInfos[mcp.id].tools!.length})</div>
+                        <div className="max-h-32 overflow-y-auto bg-gray-50 rounded p-2">
+                          {config.mcpServerInfos[mcp.id].tools!.map((tool, toolIdx) => (
+                            <div key={toolIdx} className="text-xs text-gray-700 py-1 border-b border-gray-200 last:border-b-0">
+                              <div className="font-medium">{tool.name}</div>
+                              {tool.description && (
+                                <div className="text-gray-500 mt-1">{tool.description}</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div className="flex gap-2">
@@ -386,8 +435,8 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
                       { 
                         id: 'excel-mcp',
                         name: 'Excel MCP Server', 
-                        command: 'cmd',
-                        args: ['/c', 'npx', '--yes', '@negokaz/excel-mcp-server'],
+                        command: 'powershell',
+                        args: ['-Command', 'npx --yes @negokaz/excel-mcp-server'],
                         env: {
                           'EXCEL_MCP_PAGING_CELLS_LIMIT': '4000'
                         },

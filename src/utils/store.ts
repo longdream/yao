@@ -1,7 +1,7 @@
 import { log } from './log'
 import { create } from 'zustand'
 import { invoke } from '@tauri-apps/api/core'
-import type { ModelConfig, Provider, MCPConfig } from './types'
+import type { ModelConfig, Provider, MCPConfig, MCPServerInfo } from './types'
 
 export type AppConfig = {
   provider: Provider
@@ -19,6 +19,7 @@ export type AppConfig = {
   language?: 'zh-CN' | 'en'
   // mcp options
   mcpServers?: MCPConfig[]
+  mcpServerInfos?: Record<string, MCPServerInfo>
 }
 
 type StoreState = {
@@ -104,15 +105,42 @@ export async function bootstrapConfig() {
           args: mcp.args || [],
           env: mcp.env || {}
         })),
+        mcpServerInfos: value.mcpServerInfos || {}
       }
       useStore.setState({ config: hydrated })
       log('INFO', 'settings loaded', hydrated)
+      
+      // 初始化MCP服务器（如果有启用的服务器）
+      const enabledMCPServers = hydrated.mcpServers?.filter(mcp => mcp.enabled) || []
+      if (enabledMCPServers.length > 0) {
+        // 异步初始化MCP服务器，不阻塞应用启动
+        initializeMCPServersAsync(hydrated.mcpServers || [])
+      }
     } else {
       // keep defaults
       log('INFO', 'settings not found, using defaults')
     }
   } catch {
     // ignore read errors
+  }
+}
+
+// 异步初始化MCP服务器
+async function initializeMCPServersAsync(mcpServers: MCPConfig[]) {
+  try {
+    const { initializeMCPServers } = await import('./proxy')
+    const serverInfos = await initializeMCPServers(mcpServers)
+    
+    // 更新store中的MCP服务器信息
+    const currentConfig = useStore.getState().config
+    useStore.setState({ 
+      config: { 
+        ...currentConfig, 
+        mcpServerInfos: serverInfos 
+      } 
+    })
+  } catch (error) {
+    log('ERROR', 'mcp_async_initialization_failed', { error: String(error) })
   }
 }
 

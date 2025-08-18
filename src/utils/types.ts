@@ -34,4 +34,16 @@ export type ReActStep = {
   observation?: string
 }
 
+export type MCPTool = {
+  name: string
+  description?: string
+  inputSchema?: any
+}
+
+export type MCPServerInfo = {
+  name: string
+  version?: string
+  tools?: MCPTool[]
+}
+
 

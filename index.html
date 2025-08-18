@@ -6,7 +6,38 @@
     <title>Yao</title>
   </head>
   <body class="bg-white text-gray-900 font-sans">
-    <div id="root"></div>
+    <div id="root">
+      <!-- 初始loading界面，React加载前显示 -->
+      <div id="initial-loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="text-align: center;">
+          <!-- Logo -->
+          <div style="margin-bottom: 2rem;">
+            <div style="width: 4rem; height: 4rem; margin: 0 auto; background: #111827; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 1.5rem; font-weight: bold; color: white;">Y</span>
+            </div>
+          </div>
+          
+          <!-- 应用名称 -->
+          <h1 style="font-size: 1.5rem; font-weight: bold; color: #111827; margin-bottom: 1.5rem;">Yao</h1>
+          
+          <!-- 加载动画 -->
+          <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+            <div style="width: 2rem; height: 2rem; border: 2px solid #f3f4f6; border-top: 2px solid #111827; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+          </div>
+          
+          <!-- 加载文字 -->
+          <p style="color: #6b7280;">Initializing application...</p>
+        </div>
+      </div>
+      
+      <!-- CSS动画定义 -->
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
   </html>

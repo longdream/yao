@@ -27,6 +27,7 @@
   "settings.api_key_placeholder": "sk-...",
   "chat.placeholder": "Type a message...",
   "chat.send": "Send",
+  "chat.stop": "Stop",
   "chat.empty": "No conversations yet",
   "chat.new_chat": "New Chat",
   "chat.this_week": "This Week",
@@ -45,8 +46,10 @@
   "settings.add_mcp": "+ Add MCP Server",
   "settings.add_excel_mcp": "+ Add Excel MCP",
   "settings.mcp_json_config": "JSON Configuration",
-  "settings.mcp_json_placeholder": "{\n  \"command\": \"cmd\",\n  \"args\": [\"/c\", \"npx\", \"--yes\", \"@negokaz/excel-mcp-server\"],\n  \"env\": {\n    \"EXCEL_MCP_PAGING_CELLS_LIMIT\": \"4000\"\n  }\n}",
+  "settings.mcp_json_placeholder": "{\n  \"command\": \"powershell\",\n  \"args\": [\"-Command\", \"npx --yes @negokaz/excel-mcp-server\"],\n  \"env\": {\n    \"EXCEL_MCP_PAGING_CELLS_LIMIT\": \"4000\"\n  }\n}",
   "settings.mcp_command_placeholder": "e.g., node server.js",
   "settings.mcp_args_placeholder": "e.g., --port 3000",
-  "settings.mcp_description_placeholder": "MCP server description"
+  "settings.mcp_description_placeholder": "MCP server description",
+  "settings.refresh_tools": "Refresh Tools",
+  "settings.available_tools": "Available Tools"
 }

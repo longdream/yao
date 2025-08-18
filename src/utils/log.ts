@@ -11,12 +11,12 @@ async function ensureDir(path: string) {
   try {
     const fs = await import('@tauri-apps/plugin-fs')
     if (!(await fs.exists(dir))) {
-      await fs.createDir(dir, { recursive: true })
+      await fs.mkdir(dir, { recursive: true })
     }
   } catch {}
 }
 
-export async function log(level: 'INFO' | 'ERROR' | 'DEBUG', message: string, data?: unknown) {
+export async function log(level: 'INFO' | 'ERROR' | 'DEBUG' | 'WARN', message: string, data?: unknown) {
   const ts = new Date().toISOString()
   const line = `[${ts}] [${level}] ${message}${data !== undefined ? ' ' + safeJson(data) : ''}`
   inMemoryLogs.push(line)

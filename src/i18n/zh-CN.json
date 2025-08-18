@@ -27,6 +27,7 @@
   "settings.api_key_placeholder": "sk-...",
   "chat.placeholder": "输入消息...",
   "chat.send": "发送",
+  "chat.stop": "停止",
   "chat.empty": "暂无会话",
   "chat.new_chat": "新对话",
   "chat.this_week": "本周",
@@ -45,8 +46,10 @@
   "settings.add_mcp": "+ 添加 MCP 服务器",
   "settings.add_excel_mcp": "+ 添加 Excel MCP",
   "settings.mcp_json_config": "JSON 配置",
-  "settings.mcp_json_placeholder": "{\n  \"command\": \"cmd\",\n  \"args\": [\"/c\", \"npx\", \"--yes\", \"@negokaz/excel-mcp-server\"],\n  \"env\": {\n    \"EXCEL_MCP_PAGING_CELLS_LIMIT\": \"4000\"\n  }\n}",
+  "settings.mcp_json_placeholder": "{\n  \"command\": \"powershell\",\n  \"args\": [\"-Command\", \"npx --yes @negokaz/excel-mcp-server\"],\n  \"env\": {\n    \"EXCEL_MCP_PAGING_CELLS_LIMIT\": \"4000\"\n  }\n}",
   "settings.mcp_command_placeholder": "例如: node server.js",
   "settings.mcp_args_placeholder": "例如: --port 3000",
-  "settings.mcp_description_placeholder": "MCP 服务器描述"
+  "settings.mcp_description_placeholder": "MCP 服务器描述",
+  "settings.refresh_tools": "刷新工具",
+  "settings.available_tools": "可用工具"
 }

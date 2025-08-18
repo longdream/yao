@@ -23,7 +23,17 @@
         {
           "name": "cmd",
           "cmd": "cmd",
-          "args": ["/c", "start", "", { "validator": "\\S+" }]
+          "args": true
+        },
+        {
+          "name": "npx",
+          "cmd": "npx",
+          "args": true
+        },
+        {
+          "name": "powershell",
+          "cmd": "powershell",
+          "args": true
         }
       ]
     }

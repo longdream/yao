@@ -4,11 +4,12 @@ import { ChatBubble } from './ChatBubble'
 import { useStore } from '../utils/store'
 import { fetchModels, streamChat, streamChatWithMCP } from '../utils/proxy'
 import { t, setLocale, getCurrentLocale } from '../utils/i18n'
-import { IconSend, IconGlobe, IconCloud, IconList, IconEdit, IconBrain, IconLanguage, IconMCP } from './icons'
+import { IconSend, IconStop, IconGlobe, IconCloud, IconList, IconEdit, IconBrain, IconLanguage, IconMCP } from './icons'
 import { Dropdown } from './Dropdown'
 import { createConversationId, loadConversations, saveConversations, type Conversation } from '../utils/conversations'
 import { log } from '../utils/log'
 import { ModelPullDialog } from './ModelPullDialog'
+// Loading现在在HTML中处理，不需要React组件
 import { invoke } from '@tauri-apps/api/core'
 
 export type Message = {
@@ -34,22 +35,44 @@ export const App: React.FC = () => {
   const [mcpEnabled, setMcpEnabled] = useState<boolean>(false)
   const [pullingModel, setPullingModel] = useState<string>('')
   const [currentLanguage, setCurrentLanguage] = useState(getCurrentLocale())
+  const [isGenerating, setIsGenerating] = useState<boolean>(false)
+  // 移除了isLoading状态，现在在main.tsx中处理初始加载
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const { config } = useStore()
   const listRef = useRef<HTMLDivElement | null>(null)
 
+  // 应用数据初始化
   useEffect(() => {
-    const run = async () => {
-      const list = await fetchModels(config)
-      setModels(list)
-      const cs = await loadConversations()
-      setConversations(cs)
-      if (cs.length) {
-        setCurrentCid(cs[0].id)
-        setMessages(cs[0].messages.map(m=>({ role:m.role, content:m.content })))
+    const initAppData = async () => {
+      try {
+        const list = await fetchModels(config)
+        setModels(list)
+        const cs = await loadConversations()
+        setConversations(cs)
+        if (cs.length) {
+          setCurrentCid(cs[0].id)
+          setMessages(cs[0].messages.map(m=>({ role:m.role, content:m.content })))
+        }
+      } catch (error) {
+        setModels([])
       }
     }
-    run().catch(() => setModels([]))
+    
+    initAppData()
+  }, []) // 只在挂载时执行一次
+  
+  // 当config变化时重新获取models
+  useEffect(() => {
+    const updateModels = async () => {
+      try {
+        const list = await fetchModels(config)
+        setModels(list)
+      } catch (error) {
+        setModels([])
+      }
+    }
+    updateModels()
   }, [config.provider, config.baseUrl, config.apiKey])
 
   useEffect(() => {
@@ -110,8 +133,23 @@ export const App: React.FC = () => {
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+    setIsGenerating(false)
+    setTypingIndex(null)
+    setThinkStartAt(null)
+    log('INFO', 'chat_generation_stopped_by_user', {})
+  }
+
   const handleSend = async () => {
     if (!input.trim()) return
+    if (isGenerating) {
+      handleStop()
+      return
+    }
     if (view === 'starter') setView('main')
     const newMessages = [...messages, { role: 'user', content: input.trim() }]
     setMessages(newMessages)
@@ -158,6 +196,11 @@ export const App: React.FC = () => {
     setTypingIndex(assistantIndex)
     setThinkStartAt(Date.now())
     setAssistantOutputStarted(false)
+    setIsGenerating(true)
+    
+    // 创建AbortController
+    abortControllerRef.current = new AbortController()
+    
     try {
       // 使用模型特定的配置
       const modelSpecificConfig = { 
@@ -195,6 +238,8 @@ export const App: React.FC = () => {
       }
       setTypingIndex(null)
       setThinkStartAt(null)
+      setIsGenerating(false)
+      abortControllerRef.current = null
       await log('INFO', 'chat_send_end', { model: currentModel, outputLen: assistant.content.length })
       // persist conversation
       const updated: Conversation = {
@@ -214,6 +259,8 @@ export const App: React.FC = () => {
       setMessages(prev => prev.map((m, i) => (i === assistantIndex ? assistant : m)))
       setTypingIndex(null)
       setThinkStartAt(null)
+      setIsGenerating(false)
+      abortControllerRef.current = null
       await log('ERROR', 'chat_send_error', { error: String(err) })
     }
   }
@@ -251,11 +298,19 @@ export const App: React.FC = () => {
         direction="up"
       />
       <button
-        className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center"
+        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+          isGenerating 
+            ? 'bg-gray-900 text-white hover:bg-gray-800' 
+            : 'bg-gray-900 text-white hover:bg-gray-800'
+        }`}
         onClick={handleSend}
-        aria-label={t('chat.send')}
+        aria-label={isGenerating ? t('chat.stop') : t('chat.send')}
       >
-        <IconSend className="w-5 h-5" />
+        {isGenerating ? (
+          <IconStop className="w-6 h-6 text-white" />
+        ) : (
+          <IconSend className="w-5 h-5" />
+        )}
       </button>
     </div>
   )
@@ -373,6 +428,7 @@ export const App: React.FC = () => {
     )
   }
 
+  // 显示加载屏幕
   return (
     <div className="relative h-screen w-screen bg-white text-gray-900 overflow-hidden">
       <div className={`h-full transition-[padding] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${isDrawerOpen ? 'pl-[360px]' : 'pl-0'}`}>

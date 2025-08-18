@@ -7,18 +7,47 @@ import { bootstrapConfig } from './utils/store'
 import { log } from './utils/log'
 import { invoke } from '@tauri-apps/api/core'
 
-// 启动时异步读取配置，但不阻塞渲染，避免白屏
-bootstrapConfig()
-  .then(async () => {
+// 创建应用实例但先不渲染
+const root = createRoot(document.getElementById('root')!)
+
+// 异步初始化配置，完成后才渲染应用
+async function initializeApp() {
+  try {
+    await bootstrapConfig()
     const logPath = await import('./utils/log').then(m => m.getLogPath())
     const cfgPath = await invoke<string>('get_config_path').catch(()=> 'unknown')
     await log('INFO', 'bootstrapConfig done', { logPath, cfgPath })
-  })
-  .catch((e) => log('ERROR', 'bootstrapConfig failed', e))
-createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>
-)
+    
+    // 配置加载完成后渲染主应用
+    root.render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    )
+    
+    // 清除初始loading界面
+    const initialLoading = document.getElementById('initial-loading')
+    if (initialLoading) {
+      initialLoading.remove()
+    }
+  } catch (error) {
+    await log('ERROR', 'bootstrapConfig failed', error)
+    // 即使配置失败也要渲染应用
+    root.render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    )
+    
+    // 清除初始loading界面
+    const initialLoading = document.getElementById('initial-loading')
+    if (initialLoading) {
+      initialLoading.remove()
+    }
+  }
+}
+
+// 立即启动初始化
+initializeApp()
 
 
