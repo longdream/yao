@@ -20,6 +20,8 @@ export type AppConfig = {
   // mcp options
   mcpServers?: MCPConfig[]
   mcpServerInfos?: Record<string, MCPServerInfo>
+  mcpMaxRetries?: number
+  mcpReflectionEnabled?: boolean
 }
 
 type StoreState = {
@@ -42,6 +44,8 @@ export const useStore = create<StoreState>((set, get) => ({
     temperature: 0.6,
     language: 'zh-CN',
     mcpServers: [],
+    mcpMaxRetries: 3,
+    mcpReflectionEnabled: true,
   },
   setConfig(partial) {
     const merged = { ...get().config, ...partial }
@@ -105,7 +109,9 @@ export async function bootstrapConfig() {
           args: mcp.args || [],
           env: mcp.env || {}
         })),
-        mcpServerInfos: value.mcpServerInfos || {}
+        mcpServerInfos: value.mcpServerInfos || {},
+        mcpMaxRetries: value.mcpMaxRetries ?? 3,
+        mcpReflectionEnabled: value.mcpReflectionEnabled ?? true
       }
       useStore.setState({ config: hydrated })
       log('INFO', 'settings loaded', hydrated)

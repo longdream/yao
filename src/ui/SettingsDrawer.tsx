@@ -300,6 +300,36 @@ export const SettingsDrawer: React.FC<{ close: () => void }> = ({ close }) => {
           
           {tab === 'mcp' && (
             <div className="space-y-6 max-w-[760px]">
+              {/* MCP全局设置 */}
+              <div className="border border-gray-200 rounded-ollama p-4 space-y-4">
+                <div className="text-sm font-medium text-gray-700">{t('settings.mcp_global_settings')}</div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-500">{t('settings.mcp_max_retries')}</div>
+                    <input 
+                      type="number"
+                      min="1"
+                      max="10"
+                      className="input h-10 w-full" 
+                      value={local.mcpMaxRetries || 3}
+                      onChange={(e) => setLocal({...local, mcpMaxRetries: parseInt(e.target.value) || 3})}
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="checkbox" 
+                        checked={local.mcpReflectionEnabled ?? true}
+                        onChange={(e) => setLocal({...local, mcpReflectionEnabled: e.target.checked})}
+                      />
+                      <span className="text-xs text-gray-500">{t('settings.mcp_reflection_enabled')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
               <div className="text-sm text-gray-600">{t('settings.mcp_servers')}</div>
               <div className="space-y-3">
                 {mcpList.map((mcp, idx) => (

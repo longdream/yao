@@ -51,5 +51,8 @@
   "settings.mcp_args_placeholder": "例如: --port 3000",
   "settings.mcp_description_placeholder": "MCP 服务器描述",
   "settings.refresh_tools": "刷新工具",
-  "settings.available_tools": "可用工具"
+  "settings.available_tools": "可用工具",
+  "settings.mcp_global_settings": "MCP 全局设置",
+  "settings.mcp_max_retries": "最大重试次数",
+  "settings.mcp_reflection_enabled": "启用反思机制"
 }

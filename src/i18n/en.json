@@ -51,5 +51,8 @@
   "settings.mcp_args_placeholder": "e.g., --port 3000",
   "settings.mcp_description_placeholder": "MCP server description",
   "settings.refresh_tools": "Refresh Tools",
-  "settings.available_tools": "Available Tools"
+  "settings.available_tools": "Available Tools",
+  "settings.mcp_global_settings": "MCP Global Settings",
+  "settings.mcp_max_retries": "Max Retries",
+  "settings.mcp_reflection_enabled": "Enable Reflection"
 }

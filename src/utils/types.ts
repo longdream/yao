@@ -46,4 +46,24 @@ export type MCPServerInfo = {
   tools?: MCPTool[]
 }
 
+// ReAct循环执行相关类型
+export type ReActCycle = {
+  cycleId: number
+  thought: string
+  action?: MCPToolCall
+  observation?: string
+  reflection: string
+  success: boolean
+  error?: string
+}
+
+export type TaskExecution = {
+  taskId: string
+  description: string
+  cycles: ReActCycle[]
+  completed: boolean
+  maxRetries: number
+  currentRetry: number
+}
+
 
